@@ -67,7 +67,7 @@ def get_base64_of_file(file_path):
         with open(file_path, "rb") as f:
             return base64.b64encode(f.read()).decode()
     except FileNotFoundError:
-        return ""
+        return "" # Return empty string for safe error handling
 
 def get_file_path(file_name):
     """Returns the full path to a file, handling missing files gracefully for display."""
@@ -113,10 +113,13 @@ def set_custom_theme(collage_file, music_file):
             color: #b00072; 
         }}
         
-        /* 3. Content Container */
+        /* 3. Content Container (MOBILE OPTIMIZATION) */
         .main .block-container {{
             max-width: 800px; 
-            padding: 30px;
+            width: 95% !important; /* Increased width for better mobile fit */
+            padding: 20px !important; /* Reduced padding for mobile */
+            margin-left: auto;
+            margin-right: auto;
             background-color: #FFFFFF; 
             border-radius: 25px; 
             box-shadow: 0 8px 20px rgba(255, 105, 180, 0.5); 
@@ -126,141 +129,100 @@ def set_custom_theme(collage_file, music_file):
         /* 4. Titles and Headings */
         h1 {{
             font-family: 'Chewy', cursive; 
-            color: #b00072; /* Deep Pink */
-            font-size: 3.5em; 
-            text-shadow: 3px 3px 0 #ffe0f0; 
+            color: #b00072; 
+            font-size: 2.5em; /* Adjusted for mobile readability */
+            text-shadow: 2px 2px 0 #ffe0f0; 
             text-align: center;
             border-bottom: 4px dashed #ffb6c1;
+            padding-bottom: 10px;
         }}
         
         h3 {{
             font-family: 'Fuzzy Bubbles', cursive;
             color: #ff99aa; 
             border-bottom: 2px dashed #ffb6c1; 
+            font-size: 1.5em;
         }}
         
         /* 5. BUTTON STYLING (General) */
         .stButton > button {{
-            background-color: #ffb6c1; /* Light pink background */
-            color: white; 
+            background-color: #ffb6c1; 
+            color: white !important; 
             border: 2px solid #ff99aa; 
             border-radius: 10px;
-            padding: 10px 20px;
+            padding: 8px 15px;
             font-family: 'Fuzzy Bubbles', cursive;
-            font-size: 1.1em;
+            font-size: 0.9em; /* Smaller font for mobile buttons */
             box-shadow: 0 4px 8px rgba(255, 105, 180, 0.3);
-            transition: all 0.2s ease-in-out;
         }}
-        /* IMPORTANT: Ensure button text is white for ALL buttons */
-        .stButton > button, 
-        .stButton > button * {{
-            color: white !important; 
-        }}
-
-
+        
         .stButton > button:hover {{
             background-color: #ff99aa; 
-            color: white;
             border-color: #b00072;
             transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(255, 105, 180, 0.4);
         }}
         
-        /* 6. INPUT FIELDS FIX */
-        [data-testid="stTextInput"] input, 
-        [data-testid="stTextArea"] textarea {{
-            background-color: white !important; /* White background */
-            color: #b00072 !important; /* Deep Pink text */
-            border: 2px solid #ffb6c1 !important; 
-            border-radius: 8px !important;
-            box-shadow: 0 2px 5px rgba(255, 105, 180, 0.1);
-        }}
-        .stTextInput div[data-baseweb="input"],
-        .stTextArea div[data-baseweb="input"] {{
-            background-color: white !important; 
-            border: 2px solid #ffb6c1 !important; 
-            border-radius: 8px !important;
-        }}
-        [data-testid="stForm"] label {{
-            color: #b00072 !important;
-        }}
-
-
-        /* 7. TOAST/ALERT/ERROR BOX FIX */
-        [data-testid="stToast"] {{
-            background-color: #fff0f5 !important; 
-            border: 2px solid #ffb6c1 !important;
-            box-shadow: 0 4px 10px rgba(255, 105, 180, 0.5) !important;
-            color: #b00072 !important; 
-            opacity: 1; 
-        }}
-        [data-testid="stToast"] *,
-        [data-testid="stAlert"] [role="alert"] * {{
-            color: #b00072 !important;
-        }}
-        
-        /* 8. REMOVE SPARKLE HEART DEBUG TEXT */
-        .heart-sparkle-container {{ display: none !important; }}
-        .stMarkdown span.sparkle-heart {{ display: none; }}
-        
-        /* 9. General Markdown FIX */
-        div[data-testid="stMarkdownContainer"] * {{
-            background-color: transparent !important;
-            color: inherit;
-        }}
-
-        /* 10. Letter Italic Font for Aesthetic */
+        /* 6. Letter Content Font (Smaller for mobile text block) */
         .letter-content p {{
             font-style: italic cursive !important;
-            padding: 10px; /* Added padding to ensure text doesn't touch edges */
+            font-size: 0.95em;
+            line-height: 1.6;
+            padding: 5px;
         }}
 
         </style>
-        <audio id="bday-music" loop style="display:none">
+        
+        <audio id="bday-music" loop style="display:none" autoplay>
             <source src="data:audio/mp3;base64,{music_base64}" type="audio/mp3">
         </audio>
         
         <script>
-        function controlMusic(action) {{
+        // FUNCTION TO ATTEMPT MUSIC PLAYBACK
+        function attemptPlay() {{
             var music = document.getElementById('bday-music');
-            if (!music) return;
-            music.volume = 0.4; 
-            if (action === 'play') {{ music.play().catch(error => {{}}); }} 
-            else if (action === 'pause') {{ music.pause(); }}
+            if (music) {{
+                music.volume = 0.4;
+                music.play().catch(error => {{
+                    // This catches the error if the browser still blocks autoplay
+                    console.log("Autoplay blocked. Waiting for user interaction.");
+                }});
+            }}
         }}
-        controlMusic('play'); 
-        document.addEventListener('click', () => controlMusic('play'), {{ once: true }}); 
+        
+        // 1. Attempt immediately (often blocked, but worth a try)
+        attemptPlay();
+        
+        // 2. Attempt play on the VERY FIRST user interaction (Click/Tap/Scroll)
+        document.addEventListener('click', attemptPlay, {{ once: true }}); 
+        document.addEventListener('touchstart', attemptPlay, {{ once: true }}); 
+        document.addEventListener('scroll', attemptPlay, {{ once: true }});
         </script>
         """,
         unsafe_allow_html=True
     )
     
 def music_js_command(action):
+    # This utility function sends commands to the JS music controller
     st.components.v1.html(f"<script>controlMusic('{action}');</script>", height=0, width=0)
 
 def show_celebration_effects_simple():
-    """Confetti/Balloons only."""
     st.balloons()
     
 def init_hearts_game(num_hearts=3): 
-    """Initializes the Catch the Hearts game state."""
     st.session_state['hearts_to_find'] = list(range(1, num_hearts + 1)) 
     st.session_state['hearts_caught'] = 0
     st.session_state['correct_spot_index'] = random.randint(0, 8) 
 
 def new_love_message():
-    """Selects a new random message for the love jar."""
     st.session_state['current_love_message'] = random.choice(LOVE_MESSAGES)
 
 # --- PAGE NAVIGATION STATE ---
 
 def set_page(new_page, prev_page='home'):
-    """Sets the new page and stores the previous page for the 'Back' button."""
     st.session_state['prev_page'] = st.session_state.get(PAGE_KEY, prev_page) 
     st.session_state[PAGE_KEY] = new_page
     
 def go_back():
-    """Goes back to the previously stored page."""
     st.session_state[PAGE_KEY] = st.session_state.get('prev_page', 'home')
 
 # --- PAGE FUNCTIONS ---
@@ -268,8 +230,9 @@ def go_back():
 def page_home():
     music_js_command('play')
     st.title("Happy Birthday, My Loveeeeeeee!!!!")
-    st.markdown("<p class='cute-subtitle'>A small cute surprise made for you lovee! </p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; color:#ff99aa; font-weight:bold; font-size:1.4em;'>A small cute surprise made for you lovee! </p>", unsafe_allow_html=True)
     
+    # Using st.columns for image and content layout is inherently mobile-friendly as they stack.
     if os.path.exists(COLLAGE_FILE):
         st.image(COLLAGE_FILE, caption="Look closely! Some beautiful moments of us are here.", use_container_width=True)
     
@@ -282,6 +245,7 @@ def page_home():
     
     st.markdown("---")
     
+    # Streamlit columns (3) will automatically stack on small screens (mobile view)
     col1, col2, col3 = st.columns(3)
     col1.button("💌 My Love Letter", use_container_width=True, on_click=lambda: set_page('letter', 'home'))
     col2.button("🔮 See Our Future", use_container_width=True, on_click=lambda: set_page('future', 'home'))
@@ -298,15 +262,15 @@ def page_letter():
     st.title("A sweet letter for you.")
     st.markdown("<h3>In our little infinity, I want the best for you.</h3>", unsafe_allow_html=True)
     
-    # ***FIX: Added italic font style to the letter content and increased padding***
+    # NOTE: REMEMBER TO CUSTOMIZE [Boyfriend's Name] and [Your Name] in this letter!
     letter_content = """
     <div class="letter-content" style="background-color: #fff0f5; padding: 35px; border-radius: 15px; border: 2px solid #ffb6c1; box-shadow: 0 4px 10px rgba(255, 105, 180, 0.2);">
         <p>
-            My Dearest Aaadhiiii,<br>
-            Happy Birthday! You are the best part of my life, and every day with you makes me happy. This little surprise is a testament to how much I cherish you. I felt like I should do something special for you, and with my limitations in gifts and my knowledge I thought about this idea, only for us. And here how can you stop me from gifting this??? Heheheehhhh. I love you Aadhi. I want to make you the most happiest person. I want to love you like the way you deserve. I want to buy every single thing you need in this world. Once you are fully mine when there is no any limits or distances between us I promise I never leave you to be alone. I will be there for you no matter what the situation is because you are mine then. Even now you are mine, ONLY MINE! and yes I am your's too, ONLY YOUR'S. I actually hate us being this distance. I really miss you as hell. Sometimes I cry thinking about our situation. But later I fell asleep sobbing on my pillow. But it's completely fine. I shall wait for you, if I don't who else? Miss you idiot. Meet me as soon as possible. I really want to see you. Hug you. And lots of kisses. Love you babyyyy. I love you in every way. I love your smile, your kindness, and the way you always make me feel like the most important person in the world. I am really proud of what you are and day by day you are making me falling for you again and againnnnn. I hope you feel all the love I've poured into this today. Love you infinitely, I promise I can't love anyone like the way I love you. Also sorry for some of my dumbass behaviours. Shall annoy you more. Tolerate me pleaseeee. Love youuuuuuuu.
+            My Dearest [Boyfriend's Name] Bear,<br>
+            Happy Birthday! You are the best part of my life, and every day with you makes me happy. This little surprise is a testament to how much I cherish you. I felt like I should do something special for you, and with my limitations in gifts and my knowledge I thought about this idea, only for us. And here how can you stop me from gifting this??? Heheheehhhh. I love you [Boyfriend's Name]. I want to make you the most happiest person. I want to love you like the way you deserve. I want to buy every single thing you need in this world. Once you are fully mine when there is no any limits or distances between us I promise I never leave you to be alone. I will be there for you no matter what the situation is because you are mine then. Even now you are mine, ONLY MINE! and yes I am your's too, ONLY YOUR'S. I actually hate us being this distance. I really miss you as hell. Sometimes I cry thinking about our situation. But later I fell asleep sobbing on my pillow. But it's completely fine. I shall wait for you, if I don't who else? Miss you idiot. Meet me as soon as possible. I really want to see you. Hug you. And lots of kisses. Love you babyyyy. I love you in every way. I love your smile, your kindness, and the way you always make me feel like the most important person in the world. I am really proud of what you are and day by day you are making me falling for you again and againnnnn. I hope you feel all the love I've poured into this today. Love you infinitely, I promise I can't love anyone like the way I love you. Also sorry for some of my dumbass behaviours. Shall annoy you more. Tolerate me pleaseeee. Love youuuuuuuu.
             <br><br>
             Forever yours,<br>
-            Aaaamiiiiiii💋
+            [Your Name] 💋
         </p>
     </div>
     """
@@ -320,7 +284,7 @@ def page_letter():
 
 
 def page_voice():
-    music_js_command('pause') # Music intentionally paused on this page
+    music_js_command('pause')
     st.title("A Little Voice from Me to You! 🎙️")
     st.markdown("<h3>Listen to my sweet little message!</h3>", unsafe_allow_html=True)
 
@@ -345,6 +309,7 @@ def page_future():
     st.title("🔮 Looking Into Our Future!")
     st.markdown("<h3>Some digital edits of what our life might look like someday! A sneak peek just for you... 💍</h3>", unsafe_allow_html=True)
 
+    # st.columns(2) will stack perfectly on a mobile screen
     cols = st.columns(2)
     for i, data in enumerate(FUTURE_IMAGES):
         file_path = get_file_path(data["file"])
@@ -367,7 +332,7 @@ def page_love_jar():
     st.markdown(
         f"""
         <div style="background-color: #ffefff; padding: 40px; border-radius: 20px; border: 5px solid #ffccff; text-align: center; box-shadow: 0 4px 15px rgba(255, 105, 180, 0.7); color:#b00072;">
-            <p style="font-size: 1.8em; color: #b00072; font-weight: bold; margin-bottom: 0; font-family: 'Dancing Script', cursive;">
+            <p style="font-size: 1.5em; color: #b00072; font-weight: bold; margin-bottom: 0; font-family: 'Dancing Script', cursive;">
                 "{st.session_state['current_love_message']}"
             </p>
             </div>
@@ -376,6 +341,7 @@ def page_love_jar():
     
     st.markdown("---")
     
+    # st.columns(2) will stack on mobile
     col1, col2 = st.columns(2)
     col1.button("Pick Another Message! 💖", use_container_width=True, on_click=new_love_message)
     col2.button("⬅️ Back to Home", use_container_width=True, on_click=lambda: set_page('home', 'love_jar'))
@@ -399,7 +365,7 @@ def page_message_back():
             
             submitted = st.form_submit_button("Send Your Love Note! 💌", on_click=submit_message_action)
             
-            if submitted and st.session_state['message_status'] == 'sent':
+            if submitted and st.session_state.get('message_status') == 'sent':
                 st.rerun() 
             elif submitted and not st.session_state.message:
                 st.error("Please write a message before sending!")
@@ -448,6 +414,7 @@ def page_games_hub():
     
     st.markdown("---")
     
+    # st.columns(2) will stack on mobile
     col1, col2 = st.columns(2)
     col1.button("❤️ Find My Hearts (Quick Challenge)", use_container_width=True, on_click=lambda: set_page('catch_hearts', 'games_hub'))
     col2.button("🎡 Spin the Wheel of Memories", use_container_width=True, on_click=lambda: set_page('spin_wheel', 'games_hub'))
@@ -483,6 +450,7 @@ def page_catch_hearts():
     st.markdown(f"**Heart Level:** {hearts_found + 1} / 3")
     st.markdown(f"**Progress:** {'❤️' * hearts_found}{'🤍' * (3 - hearts_found)}")
 
+    # The 3x3 grid is created with st.columns (3), which automatically renders as a 3-wide grid on desktop and a stacked list on mobile if the screen is too small.
     button_index = 0
     for row in range(3):
         cols = st.columns(3)
