@@ -14,7 +14,7 @@ PAGE_KEY = 'current_page'
 # Placeholder data (ensure these files are present)
 FUTURE_IMAGES = [
     {"file": "future_us_1.jpg", "caption": "Our Cozy Home Together! 🏡"},
-    {"file": "future_us_2.jpg", "caption": "This will the one on the wall. 🖼️"},
+    {"file": "future_us_2.jpg", "caption": "This will be one on our photo wall. 🖼️"},
     {"file": "future_us_3.jpg", "caption": "Maybe one day us celebrating a diwali? 🪔"},
     {"file": "future_us_4.jpg", "caption": "Again some desi vibes, after marriage. 💍"},
     {"file": "future_us_5.jpg", "caption": "A kannod kannayidam moment! ✨"},
@@ -28,7 +28,7 @@ MEMORABLE_EVENTS = [
     {"date": "2023-10-12", "event": "Our first video call, you in that white tshirt, still makes me fall for you."},
     {"date": "2024-09-07", "event": "The ksrtc memory! held hands and a picture together for the first time"},
     {"date": "2024-12-24", "event": "You surprised me coming to my home."},
-    {"date": "2024-02-21", "event": "Like we wanted for a long time! And you found something rare but you loved it. I made you the happiest this day lol."},
+    {"date": "2025-02-21", "event": "Like we wanted for a long time! And you found something rare but you loved it. I made you the happiest this day lol."},
     {"date": "2024-12-31", "event": "Again a picture together"},
 ]
 MEMORABLE_EVENTS.sort(key=lambda x: datetime.datetime.strptime(x["date"], "%Y-%m-%d"))
@@ -84,8 +84,8 @@ def set_custom_theme(collage_file, music_file):
 
     bg_image_url = f"url('data:image/jpeg;base64,{first_image_base64}')" if first_image_base64 else "none"
     
-    st.markdown(
-        f"""
+    # NOTE: Changed from f-string to .format() to fix the persistent SyntaxError
+    html_content = """
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Chewy&family=Fuzzy+Bubbles:wght@400;700&family=Dancing+Script:wght@400;700&display=swap');
         
@@ -162,12 +162,25 @@ def set_custom_theme(collage_file, music_file):
             transform: translateY(-2px);
         }}
         
+        /* NEW: White background for text/input/area boxes */
+        div[data-testid="stTextInput"] > div > div > input,
+        div[data-testid="stTextarea"] > div > textarea {{
+            background-color: #FFFFFF !important;
+            color: #b00072; 
+        }}
+
         /* 6. Letter Content Font (Smaller for mobile text block) */
         .letter-content p {{
             font-style: italic cursive !important;
             font-size: 0.95em;
             line-height: 1.6;
             padding: 5px;
+        }}
+        
+        /* NEW: Styling for small heart game buttons */
+        .heart-game-button > button {{
+            padding: 5px 10px !important; /* Reduced padding for smaller size */
+            font-size: 0.8em !important; 
         }}
 
         </style>
@@ -182,14 +195,14 @@ def set_custom_theme(collage_file, music_file):
             var music = document.getElementById('bday-music');
             if (music) {{
                 music.volume = 0.4;
+                // Using .catch() is essential for modern browsers
                 music.play().catch(error => {{
-                    // This catches the error if the browser still blocks autoplay
                     console.log("Autoplay blocked. Waiting for user interaction.");
                 }});
             }}
         }}
         
-        // 1. Attempt immediately (often blocked, but worth a try)
+        // 1. Attempt immediately (often blocked)
         attemptPlay();
         
         // 2. Attempt play on the VERY FIRST user interaction (Click/Tap/Scroll)
@@ -197,13 +210,17 @@ def set_custom_theme(collage_file, music_file):
         document.addEventListener('touchstart', attemptPlay, {{ once: true }}); 
         document.addEventListener('scroll', attemptPlay, {{ once: true }});
         </script>
-        """,
+        """
+
+    # Use .format() to inject the two required Python variables
+    st.markdown(
+        html_content.format(bg_image_url=bg_image_url, music_base64=music_base64),
         unsafe_allow_html=True
     )
     
 def music_js_command(action):
     # This utility function sends commands to the JS music controller
-    st.components.v1.html(f"<script>controlMusic('{action}');</script>", height=0, width=0)
+    pass
 
 def show_celebration_effects_simple():
     st.balloons()
@@ -228,7 +245,7 @@ def go_back():
 # --- PAGE FUNCTIONS ---
 
 def page_home():
-    music_js_command('play')
+    # music_js_command('play')
     st.title("Happy Birthday, My Loveeeeeeee!!!!")
     st.markdown("<p style='text-align:center; color:#ff99aa; font-weight:bold; font-size:1.4em;'>A small cute surprise made for you lovee! </p>", unsafe_allow_html=True)
     
@@ -258,7 +275,7 @@ def page_home():
     col_cake.button("🎂 Virtual Celebration", use_container_width=True, on_click=lambda: set_page('celebration_room', 'home'))
 
 def page_letter():
-    music_js_command('play')
+    # music_js_command('play')
     st.title("A sweet letter for you.")
     st.markdown("<h3>In our little infinity, I want the best for you.</h3>", unsafe_allow_html=True)
     
@@ -266,11 +283,11 @@ def page_letter():
     letter_content = """
     <div class="letter-content" style="background-color: #fff0f5; padding: 35px; border-radius: 15px; border: 2px solid #ffb6c1; box-shadow: 0 4px 10px rgba(255, 105, 180, 0.2);">
         <p>
-            My Dearest [Boyfriend's Name] Bear,<br>
-            Happy Birthday! You are the best part of my life, and every day with you makes me happy. This little surprise is a testament to how much I cherish you. I felt like I should do something special for you, and with my limitations in gifts and my knowledge I thought about this idea, only for us. And here how can you stop me from gifting this??? Heheheehhhh. I love you [Boyfriend's Name]. I want to make you the most happiest person. I want to love you like the way you deserve. I want to buy every single thing you need in this world. Once you are fully mine when there is no any limits or distances between us I promise I never leave you to be alone. I will be there for you no matter what the situation is because you are mine then. Even now you are mine, ONLY MINE! and yes I am your's too, ONLY YOUR'S. I actually hate us being this distance. I really miss you as hell. Sometimes I cry thinking about our situation. But later I fell asleep sobbing on my pillow. But it's completely fine. I shall wait for you, if I don't who else? Miss you idiot. Meet me as soon as possible. I really want to see you. Hug you. And lots of kisses. Love you babyyyy. I love you in every way. I love your smile, your kindness, and the way you always make me feel like the most important person in the world. I am really proud of what you are and day by day you are making me falling for you again and againnnnn. I hope you feel all the love I've poured into this today. Love you infinitely, I promise I can't love anyone like the way I love you. Also sorry for some of my dumbass behaviours. Shall annoy you more. Tolerate me pleaseeee. Love youuuuuuuu.
+            My Favourite Teddy Bear,<br>
+            Happy Birthday! You are the best part of my life, and every day with you makes me happy. This little surprise is a testament to how much I cherish you. I felt like I should do something special for you, and with my limitations in gifts and my knowledge I thought about this idea, only for us. And here how can you stop me from gifting this??? Heheheehhhh. I love you Aaadhiiiii. I want to make you the most happiest person. I want to love you like the way you deserve. I want to buy every single thing you need in this world. Once you are fully mine when there is no any limits or distances between us I promise I never leave you to be alone. I will be there for you no matter what the situation is because you are mine then. Even now you are mine, ONLY MINE! and yes I am your's too, ONLY YOUR'S. I actually hate us being this distance. I really miss you as hell. Sometimes I cry thinking about our situation. But later I fell asleep sobbing on my pillow. But it's completely fine. I shall wait for you, if I don't who else? Miss you idiot. Meet me as soon as possible. I really want to see you. Hug you. And lots of kisses. Love you babyyyy. I love you in every way. I love your smile, your kindness, and the way you always make me feel like the most important person in the world. I am really proud of what you are and day by day you are making me falling for you again and againnnnn. I hope you feel all the love I've poured into this today. Love you infinitely, I promise I can't love anyone like the way I love you. Also sorry for some of my dumbass behaviours. Shall annoy you more. Tolerate me pleaseeee. Love youuuuuuuu.
             <br><br>
             Forever yours,<br>
-            [Your Name] 💋
+            Aamiii 💋
         </p>
     </div>
     """
@@ -284,7 +301,7 @@ def page_letter():
 
 
 def page_voice():
-    music_js_command('pause')
+    # music_js_command('pause')
     st.title("A Little Voice from Me to You! 🎙️")
     st.markdown("<h3>Listen to my sweet little message!</h3>", unsafe_allow_html=True)
 
@@ -305,7 +322,7 @@ def page_voice():
 
 
 def page_future():
-    music_js_command('play')
+    # music_js_command('play')
     st.title("🔮 Looking Into Our Future!")
     st.markdown("<h3>Some digital edits of what our life might look like someday! A sneak peek just for you... 💍</h3>", unsafe_allow_html=True)
 
@@ -322,7 +339,7 @@ def page_future():
 
 
 def page_love_jar():
-    music_js_command('play')
+    # music_js_command('play')
     st.title("🍯 Open the Love Jar")
     st.markdown("<h3>A random reason why I love you! Click the button to get another!</h3>", unsafe_allow_html=True)
 
@@ -348,7 +365,7 @@ def page_love_jar():
 
 
 def page_message_back():
-    music_js_command('play')
+    # music_js_command('play')
     st.title("📥 Send a Message Back!")
     
     if st.session_state.get('message_status') == 'sent':
@@ -375,7 +392,7 @@ def page_message_back():
 
 
 def page_memories_timeline():
-    music_js_command('play')
+    # music_js_command('play')
     st.title("🗺️ Our Sweetest Memories Roadmap")
     st.markdown("<h3>The path we've traveled so far... and it's beautiful! 🛣️</h3>", unsafe_allow_html=True)
     
@@ -400,7 +417,7 @@ def page_memories_timeline():
 
 
 def page_games_hub():
-    music_js_command('play')
+    # music_js_command('play')
     st.title("🎮 Birthday Games Hub")
     st.markdown("<h3>Let's have some fun before we cut the cake! It's a game date! 🕹️</h3>", unsafe_allow_html=True)
     
@@ -423,7 +440,7 @@ def page_games_hub():
     st.button("⬅️ Back to Home", use_container_width=True, on_click=lambda: set_page('home', 'games_hub'))
 
 def page_catch_hearts():
-    music_js_command('play')
+    # music_js_command('play')
     st.title("❤️ Find My Hearts Challenge!")
     st.markdown("<h3>Find 3 total hearts quickly to win!</h3>", unsafe_allow_html=True)
 
@@ -456,6 +473,8 @@ def page_catch_hearts():
         cols = st.columns(3)
         for col_index in range(3):
             with cols[col_index]:
+                # Applied custom class 'heart-game-button' for smaller size
+                st.markdown('<div class="heart-game-button">', unsafe_allow_html=True)
                 st.button(
                     "Search Here", 
                     key=f"grid_spot_{row}_{col_index}", 
@@ -463,6 +482,7 @@ def page_catch_hearts():
                     args=(button_index,), 
                     use_container_width=True
                 )
+                st.markdown('</div>', unsafe_allow_html=True)
             button_index += 1
     
     st.markdown("---")
@@ -470,10 +490,10 @@ def page_catch_hearts():
 
 
 def page_catch_hearts_won():
-    music_js_command('play')
+    # music_js_command('play')
     st.title("🏆 Perfect Catch! 🏆")
     st.success("All hearts secured! Our love is strong! 💪")
-    show_celebration_effects_simple()
+    # show_celebration_effects_simple() # Removed as requested previously
 
     lottie_html = """
     <div style="display: flex; justify-content: center; margin-bottom: 20px;">
@@ -491,7 +511,7 @@ def page_catch_hearts_won():
 
 
 def page_spin_wheel():
-    music_js_command('play')
+    # music_js_command('play')
     st.title("🎡 Spin the Wheel of Memories")
 
     if 'wheel_result' not in st.session_state:
@@ -539,7 +559,7 @@ def page_spin_wheel():
 
 
 def page_celebration_room():
-    music_js_command('play')
+    # music_js_command('play')
     st.title("🎂 Virtual Celebration Room")
 
     if 'candles_blown' not in st.session_state:
